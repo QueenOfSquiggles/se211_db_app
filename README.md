@@ -18,3 +18,10 @@
 2. When prompted set up any "interpreter"
 3. Ensure "requirements.txt" does not show warnings
    - If it does, make sure to hover and select "install all missing"
+
+## Running the Application
+1. Access this directory with a terminal/command prompt
+2. Activate the virtual environment with:
+   - Windows: `.venv/bin/activate.bash`
+   - Unix: `source .venv/bin/activate`
+3. Run `python main.py`
