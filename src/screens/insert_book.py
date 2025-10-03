@@ -8,12 +8,13 @@ class InsertBookFrame(tk.Frame):
         self.base = base
         self.base.title("Insert Books")
         center_window(200, 150, base)
-        # add elements here
         tk.Button(self, text="Home", command=self.return_home).pack()
-        tk.Label(self, text="Hello there").pack()
+        # add elements here
 
+        tk.Label(self, text="Insert Books Screen").pack()
 
-        # 
+        # end elements section
+
         self.pack()
 
     def return_home(self):
@@ -21,3 +22,9 @@ class InsertBookFrame(tk.Frame):
             widget.destroy()
         self.destroy()
         MainPortal(self.base)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.eval('tk::PlaceWindow . center')
+    InsertBookFrame(root)
+    root.mainloop()
