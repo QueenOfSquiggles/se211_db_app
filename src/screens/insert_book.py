@@ -1,4 +1,4 @@
-from .util import center_window
+from .util import resize_window
 import tkinter as tk
 from .main_portal import MainPortal 
 
@@ -7,7 +7,7 @@ class InsertBookFrame(tk.Frame):
         super().__init__()
         self.base = base
         self.base.title("Insert Books")
-        center_window(200, 150, base)
+        resize_window(base)
         tk.Button(self, text="Home", command=self.return_home).pack()
         # add elements here
 

@@ -1,5 +1,5 @@
 import tkinter as tk
-from .util import center_window
+from .util import resize_window
 
 class MainPortal(tk.Frame):
     def __init__(self, base):
@@ -9,13 +9,23 @@ class MainPortal(tk.Frame):
 
     def construct(self):
         self.base.title("Database System")
-        center_window(200, 150, self.base)
-        insert = tk.Button(self, \
-            text="Insert function", \
+        resize_window(self.base)
+        tk.Button(self, \
+            text="Add books into collection", \
             justify=tk.CENTER, \
-            command=self.open_insert)
-        insert.pack()
-
+            command=self.open_insert).pack()
+        tk.Button(self, \
+            text="Manage collection", \
+            justify=tk.CENTER, \
+            command=self.open_manage).pack()
+        tk.Button(self, \
+            text="Place hold on book", \
+            justify=tk.CENTER, \
+            command=self.open_place_hold).pack()
+        tk.Button(self, \
+            text="Search books", \
+            justify=tk.CENTER, \
+            command=self.open_search).pack()
         self.pack()
 
     def open_insert(self):

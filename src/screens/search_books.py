@@ -1,17 +1,17 @@
 import tkinter as tk
-from .util import center_window
+from .util import resize_window
 from .main_portal import MainPortal
 
 class SearchBooksFrame(tk.Frame):
     def __init__(self, base):
         super().__init__()
         self.base = base
-        self.base.title("Insert Books")
-        center_window(200, 150, base)
+        self.base.title("Search Books")
+        resize_window(base)
         tk.Button(self, text="Home", command=self.return_home).pack()
         # add elements here
 
-        tk.Label(self, text="Insert Books Screen").pack()
+        tk.Label(self, text="Search Books Screen").pack()
 
         # end elements section
 
