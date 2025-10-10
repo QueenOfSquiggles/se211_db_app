@@ -1,3 +1,3 @@
 .venv/
 **/__py*
-db
+library.sqlite3

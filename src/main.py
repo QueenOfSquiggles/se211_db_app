@@ -3,7 +3,10 @@ import tkinter as tk
 from screens import main_portal
 from initialize import init
 
-if not path.isfile("db"):
+DATABASE_NAME = "library.sqlite3"
+
+
+if not path.isfile(DATABASE_NAME):
     # Initialize database
     init()
 
