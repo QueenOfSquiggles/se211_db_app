@@ -26,12 +26,14 @@ class PlaceHoldFrame(tk.Frame):
         tk.Label(user_frame, text="User ID").pack(side=tk.LEFT)
         user_entry = tk.Entry(user_frame, textvariable=self.user_var)
         user_entry.pack(side=tk.LEFT)
+        tk.Button(user_frame, text="Validate", command=self.validate_user).pack(side=tk.LEFT)
         user_frame.pack()
 
         book_frame = tk.Frame(lframe)
         tk.Label(book_frame, text="Book ID").pack(side=tk.LEFT)
         book_entry = tk.Entry(book_frame, textvariable=self.book_var)
         book_entry.pack(side=tk.LEFT)
+        tk.Button(book_frame, text="Validate", command=self.validate_book).pack(side=tk.LEFT)
         book_frame.pack() # wouldn't using scope be a useful thing here???
         
         tk.Button(lframe, text="Submit", command=self.place_hold).pack()
@@ -50,6 +52,9 @@ class PlaceHoldFrame(tk.Frame):
         self.user_var.set("")
         self.book_var.set("")
 
+        if len(text_user) == 0:
+            return
+
         book_id = text_book
         user_id = int(text_user)
 
@@ -59,10 +64,10 @@ class PlaceHoldFrame(tk.Frame):
             From Hold
             WHERE BookID = ? AND PatronID = ?;
         """, [book_id, user_id])
-        hold = Hold(c.fetchone())
+        search_result = c.fetchone()
         current_date = datetime.now().date()
         expiry_date = current_date + timedelta(days=STANDARD_HOLD_PERIOD)
-        if hold is None:
+        if search_result is None:
             print("No holds found")
             c.execute("""
                 INSERT INTO Hold
@@ -72,6 +77,7 @@ class PlaceHoldFrame(tk.Frame):
             """, [text_book, int(text_user), current_date, expiry_date])
             self.response_message.set(f"Placed hold that will expire: {expiry_date}")
         else:
+            hold = Hold(search_result)
             print("Found existing hold: ", hold)
             c.execute("""
                 UPDATE Hold
@@ -81,7 +87,25 @@ class PlaceHoldFrame(tk.Frame):
             """, [expiry_date, hold.book_id, hold.patron_id])
             self.response_message.set(f"Updated hold that will expire: {expiry_date}")
 
+    def validate_book(self):
+        b_query = self.book_var.get().strip()
+        if ';' in b_query:
+            return
+        c = self.connection.cursor()
+        sql_query=f"%{b_query}%"
+        statement = f"SELECT * FROM Book WHERE Title LIKE '{sql_query}';"
+        print("Statement:", statement)
+        c.execute(statement)
+        found = c.fetchall()
+        c.close()
+        print(f"Results: {found}")
+        temp_cursor = self.connection.cursor()
+        id = self.manual_search(temp_cursor, b_query)
+        temp_cursor.close()
+        print(f"Manual search yielded: {id}")
 
+    def validate_user(self):
+        pass
 
     
     def handle_enter(self, _event):
@@ -95,6 +119,16 @@ class PlaceHoldFrame(tk.Frame):
         self.unbind("<Return>")
         self.destroy()
         MainPortal(self.base)
+
+    def manual_search(self, cursor, query):
+        cursor.execute("SELECT ID, Title FROM Book;")
+
+        for b in cursor.fetchall():
+            print(f"Checking if {query} in {b[1]}")
+            if query in b[1]:
+                return b[0]
+        return None
+
 
 if __name__ == "__main__":
     root = tk.Tk()
