@@ -1,6 +1,6 @@
 import tkinter as tk
-from util import resize_window
-from main_portal import MainPortal
+from .util import resize_window
+from .main_portal import MainPortal
 
 class SearchBooksFrame(tk.Frame):
     def __init__(self, base):

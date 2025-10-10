@@ -109,6 +109,18 @@ def load_data(connection):
             VALUES
                 (?, ?);
         """, [book_id, category_id])
+    USERS = [
+        ["Jane Doe"], ["Frank H."], ["Sally"]
+    ]
+    cursor.executemany("""
+        INSERT INTO Patron
+            (Name)
+        VALUES
+            (?);
+    """, USERS)
+    cursor.execute("SELECT * FROM Patron;")
+    for u in cursor.fetchall():
+        print(u)
 
     cursor.close()
     return True
