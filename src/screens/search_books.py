@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 import sqlite3
 from .util import resize_window
 from .main_portal import MainPortal

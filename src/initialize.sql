@@ -49,3 +49,16 @@ CREATE TABLE BookIsCategory (
 		ON UPDATE CASCADE -- updates not really planned but whatever
 		ON DELETE CASCADE 
 );
+
+CREATE TABLE Patron (
+	ID 		INTEGER PRIMARY KEY AUTOINCREMENT,
+	Name	TEXT NOT NULL,
+);
+
+CREATE TABLE Hold (
+	BookID		TEXT NOT NULL,
+	PatronID	INTEGER NOT NULL,
+	DateCreated	Date NOT NULL,
+	DateExpires	Date NOT NULL,
+	PRIMARY KEY (BookID, PatronID)
+);
