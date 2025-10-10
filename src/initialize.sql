@@ -2,34 +2,50 @@
 -- An individual book
 CREATE TABLE Book
 (
-	ISBN13		INTEGER PRIMARY KEY,
-    Published   DATE,
-    Title       TEXT NOT NULL
+	ID		VARCHAR(30) PRIMARY KEY,
+	Title	TEXT NOT NULL
 );
 
 -- A single author
 CREATE TABLE Author 
 (
-	ID			INTEGER PRIMARY KEY,
-	AuthorName	TEXT NOT NULL
-	-- Maybe any other author metadata?
+	ID			INTEGER PRIMARY KEY AUTOINCREMENT,
+	Name		TEXT NOT NULL
 );
 
 -- The relationship between any one author and any one book
 CREATE TABLE BookAuthor
 (
 	AuthorID	INTEGER NOT NULL,
-	BookISBN13	INTEGER NOT NULL,
-	PRIMARY KEY (AuthorID, BookISBN13)
+	BookID		TEXT NOT NULL,
+	PRIMARY KEY (AuthorID, BookID)
 	FOREIGN KEY (AuthorID)
 		REFERENCES Author (ID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
-	FOREIGN KEY (BookISBN13)
-		REFERENCES Book (ISBN13)
-		ON UPDATE CASCADE
-		ON DELETE CASCADE
-	CONSTRAINT book_author_relationship_is_unique 
-		UNIQUE (AuthorID, BookISBN13)
+	FOREIGN KEY (BookID)
+		REFERENCES Book (ID)
+		ON UPDATE CASCADE -- updates not really planned but whatever
+		ON DELETE CASCADE 
 );
 
+-- A specific category
+CREATE TABLE Category (
+	ID		INTEGER PRIMARY KEY AUTOINCREMENT,
+	Name	TEXT NOT NULL
+);
+
+-- A relationship of a book belonging to a particular category
+CREATE TABLE BookIsCategory (
+	BookID		TEXT NOT NULL,
+	CategoryID	INT NOT NULL,
+	PRIMARY KEY (BookID, CategoryID)
+	FOREIGN KEY (BookID)
+		REFERENCES Book (ID)
+		ON UPDATE CASCADE -- updates not really planned but whatever
+		ON DELETE CASCADE 
+	FOREIGN KEY (CategoryID)
+		REFERENCES Category (ID)
+		ON UPDATE CASCADE -- updates not really planned but whatever
+		ON DELETE CASCADE 
+);

@@ -1,2 +1,2 @@
-tk>=0.1.0
 pysqlite3>=0.5.4
+# tkinter is often built into python itself. If not you may need to install it from your (likely unix) system's package manager
