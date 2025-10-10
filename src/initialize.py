@@ -4,14 +4,18 @@ from os import path
 import csv
 from collections import namedtuple
 
+DATABASE_NAME = "library.sqlite3"
+
 def init():
     print("Time to init the database")
-    connection = sq.connect("db")
+
+    connection = sq.connect(DATABASE_NAME)
     if not create_tables(connection):
         return
     if not load_data(connection):
         return
     validate_entries(connection)
+    connection.commit()
     connection.close()
 
 def create_tables(connection):
@@ -148,7 +152,7 @@ def validate_entries(connection):
 
 # allow running this scrip manually ro reinit the database in case of corruption
 if __name__ == "__main__":
-    if path.isfile("db"):
-        os.remove("db")
+    if path.isfile(DATABASE_NAME):
+        os.remove(DATABASE_NAME)
     init()
 
