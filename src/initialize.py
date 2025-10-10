@@ -132,7 +132,6 @@ def validate_entries(connection):
     print("Found ", len(rows), " rows available for book data (this should match CSV size of 677entries)")
     for r in rows[:25:5]:
         print("Sample", r)
-
     return True
 
 # allow running this scrip manually ro reinit the database in case of corruption

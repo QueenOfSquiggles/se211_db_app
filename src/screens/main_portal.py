@@ -1,5 +1,5 @@
 import tkinter as tk
-from .util import resize_window
+from util import resize_window
 
 class MainPortal(tk.Frame):
     def __init__(self, base):
@@ -30,22 +30,22 @@ class MainPortal(tk.Frame):
 
     def open_insert(self):
         self.close_self()
-        from . import insert_book
+        import insert_book
         insert_book.InsertBookFrame(self.base)
 
     def open_manage(self):
         self.close_self()
-        from . import manage_books
+        import manage_books
         manage_books.ManageBooksFrame(self.base)
 
     def open_place_hold(self):
         self.close_self()
-        from . import place_hold
+        import place_hold
         place_hold.PlaceHoldFrame(self.base)
 
     def open_search(self):
         self.close_self()
-        from . import search_books
+        import search_books
         search_books.SearchBooksFrame(self.base)
 
     def close_self(self):

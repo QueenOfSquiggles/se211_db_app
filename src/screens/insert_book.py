@@ -1,6 +1,6 @@
-from .util import resize_window
+from util import resize_window
 import tkinter as tk
-from .main_portal import MainPortal 
+from main_portal import MainPortal 
 
 class InsertBookFrame(tk.Frame):
     def __init__(self, base):
