@@ -1,7 +1,8 @@
 import tkinter as tk
+from tkinter import ttk
 import sqlite3
-from .main_portal import MainPortal
 from .util import resize_window
+from .main_portal import MainPortal
 
 DATABASE_NAME = "library.sqlite3"
 
@@ -11,99 +12,99 @@ class SearchBooksFrame(tk.Frame):
         self.base = base
         self.base.title("Search Books")
         resize_window(base)
-
         self.connection = sqlite3.connect("db")
 
-        # Variables
-        self.search_var = tk.StringVar()
-        self.criteria_var = tk.StringVar(value="Title")  # default search by title
-        self.results_var = tk.StringVar(value="")  # for displaying results
+        # Search input variables
+        self.title_var = tk.StringVar()
+        self.author_var = tk.StringVar()
+        self.category_var = tk.StringVar()
 
-        # Widgets
-        tk.Button(self, text="Home", command=self.return_home).pack(pady=5)
+        # Search results
+        self.results_var = tk.StringVar(value=[])
 
-        # Search input
-        form_frame = tk.Frame(self)
-        tk.Label(form_frame, text="Search:").grid(row=0, column=0, sticky="e", padx=5)
-        tk.Entry(form_frame, textvariable=self.search_var, width=40).grid(row=0, column=1, padx=5)
+        self.build_ui()
+        self.pack(expand=True, fill=tk.BOTH)
 
-        # Criteria (Title / Author / Category)
-        tk.Label(form_frame, text="Search by:").grid(row=1, column=0, sticky="e", padx=5)
-        tk.OptionMenu(form_frame, self.criteria_var, "Title", "Author", "Category").grid(row=1, column=1, sticky="w", padx=5)
+    def build_ui(self):
+        # Home button
+        tk.Button(self, text="Home", command=self.return_home).pack(anchor='ne', padx=10, pady=10)
 
-        form_frame.pack(pady=10)
+        form_frame = tk.LabelFrame(self, text="Search for Books")
+        form_frame.pack(padx=10, pady=10, fill=tk.X)
+
+        # Title search
+        tk.Label(form_frame, text="Title:").grid(row=0, column=0, sticky=tk.W)
+        tk.Entry(form_frame, textvariable=self.title_var).grid(row=0, column=1, sticky=tk.EW)
+
+        # Author search
+        tk.Label(form_frame, text="Author:").grid(row=1, column=0, sticky=tk.W)
+        tk.Entry(form_frame, textvariable=self.author_var).grid(row=1, column=1, sticky=tk.EW)
+
+        # Category search
+        tk.Label(form_frame, text="Category:").grid(row=2, column=0, sticky=tk.W)
+        tk.Entry(form_frame, textvariable=self.category_var).grid(row=2, column=1, sticky=tk.EW)
+
+        form_frame.columnconfigure(1, weight=1)
 
         # Search button
         tk.Button(self, text="Search", command=self.perform_search).pack(pady=5)
 
-        # Results label
-        tk.Label(self, text="Results:").pack()
-        self.results_text = tk.Text(self, height=15, width=60)
-        self.results_text.pack(pady=5)
+        # Results list
+        results_frame = tk.LabelFrame(self, text="Search Results")
+        results_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
-        self.pack()
+        self.results_listbox = tk.Listbox(results_frame, listvariable=self.results_var, height=10)
+        self.results_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        scrollbar = tk.Scrollbar(results_frame, orient="vertical", command=self.results_listbox.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.results_listbox.config(yscrollcommand=scrollbar.set)
 
     def perform_search(self):
-        self.results_text.delete("1.0", tk.END)  # clear previous results
-        search_text = self.search_var.get().strip()
-        criteria = self.criteria_var.get()
+        title = self.title_var.get().strip()
+        author = self.author_var.get().strip()
+        category = self.category_var.get().strip()
 
-        if not search_text:
-            self.results_text.insert(tk.END, "Please enter a search term.\n")
-            return
+        c = self.connection.cursor()
+        query = """
+            SELECT DISTINCT Book.Title
+            FROM Book
+            LEFT JOIN BookAuthor ON Book.ID = BookAuthor.BookID
+            LEFT JOIN Author ON BookAuthor.AuthorID = Author.ID
+            LEFT JOIN BookIsCategory ON Book.ID = BookIsCategory.BookID
+            LEFT JOIN Category ON BookIsCategory.CategoryID = Category.ID
+            WHERE 1 = 1
+        """
+        params = []
 
-        cursor = self.connection.cursor()
-        if criteria == "Title":
-            query = """
-                SELECT Book.Title, Author.Name, Category.Name
-                FROM Book
-                JOIN BookAuthor ON Book.ID = BookAuthor.BookID
-                JOIN Author ON Author.ID = BookAuthor.AuthorID
-                JOIN BookIsCategory ON Book.ID = BookIsCategory.BookID
-                JOIN Category ON Category.ID = BookIsCategory.CategoryID
-                WHERE Book.Title LIKE ?;
-            """
-        elif criteria == "Author":
-            query = """
-                SELECT Book.Title, Author.Name, Category.Name
-                FROM Book
-                JOIN BookAuthor ON Book.ID = BookAuthor.BookID
-                JOIN Author ON Author.ID = BookAuthor.AuthorID
-                JOIN BookIsCategory ON Book.ID = BookIsCategory.BookID
-                JOIN Category ON Category.ID = BookIsCategory.CategoryID
-                WHERE Author.Name LIKE ?;
-            """
-        else:  # Category
-            query = """
-                SELECT Book.Title, Author.Name, Category.Name
-                FROM Book
-                JOIN BookAuthor ON Book.ID = BookAuthor.BookID
-                JOIN Author ON Author.ID = BookAuthor.AuthorID
-                JOIN BookIsCategory ON Book.ID = BookIsCategory.BookID
-                JOIN Category ON Category.ID = BookIsCategory.CategoryID
-                WHERE Category.Name LIKE ?;
-            """
+        if title:
+            query += " AND Book.Title LIKE ?"
+            params.append(f"%{title}%")
+        if author:
+            query += " AND Author.Name LIKE ?"
+            params.append(f"%{author}%")
+        if category:
+            query += " AND Category.Name LIKE ?"
+            params.append(f"%{category}%")
 
-        search_term = f"%{search_text}%"
-        cursor.execute(query, (search_term,))
-        results = cursor.fetchall()
-        cursor.close()
+        print("Executing query:", query)
+        print("With parameters:", params)
+        c.execute(query, params)
+        results = c.fetchall()
+        c.close()
 
+        # Update listbox with results
         if results:
-            for title, author, category in results:
-                self.results_text.insert(tk.END, f"Title: {title}\nAuthor: {author}\nCategory: {category}\n\n")
+            book_titles = [r[0] for r in results]
         else:
-            self.results_text.insert(tk.END, "No matching books found.\n")
+            book_titles = ["No results found."]
+
+        self.results_var.set(book_titles)
 
     def return_home(self):
         for widget in self.winfo_children():
             widget.destroy()
-        self.connection.commit()
         self.connection.close()
         self.destroy()
         MainPortal(self.base)
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    SearchBooksFrame(root)
-    root.mainloop()
