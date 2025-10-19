@@ -1,6 +1,8 @@
 import tkinter as tk
 from .util import resize_window
 from .main_portal import MainPortal
+from tkinter import messagebox
+
 
 class InsertBookFrame(tk.Frame):
     def __init__(self, base):
@@ -17,23 +19,33 @@ class InsertBookFrame(tk.Frame):
         form_frame = tk.Frame(self)
         form_frame.pack(pady=10)
 
-        tk.Label(form_frame, text="Title:").grid(row=0, column=0, sticky="e", padx=5, pady=3)
+        tk.Label(form_frame, text="Title:").grid(
+            row=0, column=0, sticky="e", padx=5, pady=3
+        )
         self.title_entry = tk.Entry(form_frame, width=40)
         self.title_entry.grid(row=0, column=1, pady=3)
 
-        tk.Label(form_frame, text="Author:").grid(row=1, column=0, sticky="e", padx=5, pady=3)
+        tk.Label(form_frame, text="Author:").grid(
+            row=1, column=0, sticky="e", padx=5, pady=3
+        )
         self.author_entry = tk.Entry(form_frame, width=40)
         self.author_entry.grid(row=1, column=1, pady=3)
 
-        tk.Label(form_frame, text="Genre:").grid(row=2, column=0, sticky="e", padx=5, pady=3)
+        tk.Label(form_frame, text="Genre:").grid(
+            row=2, column=0, sticky="e", padx=5, pady=3
+        )
         self.genre_entry = tk.Entry(form_frame, width=40)
         self.genre_entry.grid(row=2, column=1, pady=3)
 
-        tk.Label(form_frame, text="ISBN:").grid(row=3, column=0, sticky="e", padx=5, pady=3)
+        tk.Label(form_frame, text="ISBN:").grid(
+            row=3, column=0, sticky="e", padx=5, pady=3
+        )
         self.isbn_entry = tk.Entry(form_frame, width=40)
         self.isbn_entry.grid(row=3, column=1, pady=3)
 
-        tk.Label(form_frame, text="Year:").grid(row=4, column=0, sticky="e", padx=5, pady=3)
+        tk.Label(form_frame, text="Year:").grid(
+            row=4, column=0, sticky="e", padx=5, pady=3
+        )
         self.year_entry = tk.Entry(form_frame, width=40)
         self.year_entry.grid(row=4, column=1, pady=3)
 
@@ -41,14 +53,28 @@ class InsertBookFrame(tk.Frame):
         btn_frame = tk.Frame(self)
         btn_frame.pack(pady=10)
 
-        tk.Button(btn_frame, text="Save", command=self.save_book, width=10, bg="#4CAF50", fg="white").grid(row=0, column=0, padx=10)
-        tk.Button(btn_frame, text="Home", command=self.return_home, width=10, bg="#f44336", fg="white").grid(row=0, column=1, padx=10)
+        tk.Button(
+            btn_frame,
+            text="Save",
+            command=self.save_book,
+            width=10,
+            bg="#4CAF50",
+            fg="white",
+        ).grid(row=0, column=0, padx=10)
+        tk.Button(
+            btn_frame,
+            text="Home",
+            command=self.return_home,
+            width=10,
+            bg="#f44336",
+            fg="white",
+        ).grid(row=0, column=1, padx=10)
 
         # end elements section
 
         self.pack()
-    
-     def save_book(self):
+
+    def save_book(self):
         """Handles saving the new book (placeholder for DB or file operation)."""
         title = self.title_entry.get().strip()
         author = self.author_entry.get().strip()
@@ -76,8 +102,9 @@ class InsertBookFrame(tk.Frame):
         self.destroy()
         MainPortal(self.base)
 
+
 if __name__ == "__main__":
     root = tk.Tk()
-    root.eval('tk::PlaceWindow . center')
+    root.eval("tk::PlaceWindow . center")
     InsertBookFrame(root)
     root.mainloop()
