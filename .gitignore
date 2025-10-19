@@ -1,6 +1,5 @@
 .venv/
 **/__py*
-**/__init*
 library.sqlite3
 db
 library.sqlite3-journal
