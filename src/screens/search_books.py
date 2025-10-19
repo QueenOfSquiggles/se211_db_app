@@ -11,7 +11,7 @@ class SearchBooksFrame(tk.Frame):
         self.base = base
         self.base.title("Search Books")
         resize_window(base)
-        self.connection = sqlite3.connect("db")
+        self.connection = sqlite3.connect("library.sqlite3")
 
         # Search input variables
         self.title_var = tk.StringVar()
