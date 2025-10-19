@@ -1,10 +1,12 @@
 import sqlite3 as sq
+import datetime
 import os
 from os import path
 import csv
 from collections import namedtuple
 
 DATABASE_NAME = "library.sqlite3"
+
 
 def init():
     print("Time to init the database")
@@ -17,6 +19,7 @@ def init():
     validate_entries(connection)
     connection.commit()
     connection.close()
+
 
 def create_tables(connection):
     cursor = connection.cursor()
@@ -35,13 +38,14 @@ def create_tables(connection):
     cursor.close()
     return True
 
+
 def load_statements():
-    with open("src/initialize.sql", 'r', encoding="utf8") as file:
+    with open("src/initialize.sql", "r", encoding="utf8") as file:
         statements = []
         current = ""
         for line in file.readlines():
             current += line
-            if ';' in line:
+            if ";" in line:
                 statements.append(current)
                 current = ""
         return statements
@@ -49,13 +53,13 @@ def load_statements():
 
 
 def load_data(connection):
-    Row = namedtuple('Row', ['id', 'title', 'author', 'category'])
+    Row = namedtuple("Row", ["id", "title", "author", "category"])
     books = []
     authors = []
     categories = []
     relationships = []
-    with open("dataset/simple_book_data.csv", 'r', encoding="utf8") as file:
-        file.readline() # skips header line
+    with open("dataset/simple_book_data.csv", "r", encoding="utf8") as file:
+        file.readline()  # skips header line
         reader = csv.reader(file)
         cursor = connection.cursor()
         for [a, b, c, d] in reader:
@@ -72,66 +76,113 @@ def load_data(connection):
                 authors.append(author)
             if category not in categories:
                 categories.append(category)
- 
+
     # Insert books
-    cursor.executemany("""
+    cursor.executemany(
+        """
         INSERT INTO Book 
             (ID, Title)
         VALUES
             (?, ?);
-    """, books)
+    """,
+        books,
+    )
     # Insert authors
-    cursor.executemany("""
+    cursor.executemany(
+        """
         INSERT INTO Author 
             (Name)
         VALUES
             (?);
-    """, authors)
+    """,
+        authors,
+    )
     # Categories
-    cursor.executemany("""
+    cursor.executemany(
+        """
         INSERT INTO Category
             (Name)
         VALUES
             (?);
-    """, categories)
+    """,
+        categories,
+    )
 
     for r in relationships:
-        book_id = cursor.execute("SELECT ID FROM Book WHERE Title=?;", [r.title]).fetchone()[0]
-        author_id = cursor.execute("SELECT ID FROM Author WHERE Name=?;", [r.author]).fetchone()[0]
-        category_id = cursor.execute("SELECT ID FROM Category WHERE Name=?;", [r.category]).fetchone()[0]
+        book_id = cursor.execute(
+            "SELECT ID FROM Book WHERE Title=?;", [r.title]
+        ).fetchone()[0]
+        author_id = cursor.execute(
+            "SELECT ID FROM Author WHERE Name=?;", [r.author]
+        ).fetchone()[0]
+        category_id = cursor.execute(
+            "SELECT ID FROM Category WHERE Name=?;", [r.category]
+        ).fetchone()[0]
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO BookAuthor
                 (AuthorID, BookID)
             VALUES
                 (?, ?);
-        """, [author_id, book_id])
+        """,
+            [author_id, book_id],
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO BookIsCategory
                 (BookID, CategoryID)
             VALUES
                 (?, ?);
-        """, [book_id, category_id])
-    USERS = [
-        ["Jane Doe"], ["Frank H."], ["Sally"]
-    ]
-    cursor.executemany("""
+        """,
+            [book_id, category_id],
+        )
+    USERS = [["Jane Doe"], ["Frank H."], ["Sally"]]
+    cursor.executemany(
+        """
         INSERT INTO Patron
             (Name)
         VALUES
             (?);
-    """, USERS)
+    """,
+        USERS,
+    )
     cursor.execute("SELECT * FROM Patron;")
     for u in cursor.fetchall():
         print(u)
 
+    HOLDS = [
+        [
+            "#348I6A4VCZ76B8D",
+            0,
+            datetime.date(2019, 4, 3),
+            datetime.date(2019, 4, 16),
+        ],
+        [
+            "#NROBRWVZ5LP4EWZ",
+            1,
+            datetime.date(2025, 1, 20),
+            datetime.date(2025, 5, 2),
+        ],
+    ]
+    cursor.executemany(
+        """
+        INSERT INTO Hold
+            (BookID, PatronID, DateCreated, DateExpires)
+        VALUES
+            (?, ?, ?, ?)
+    """,
+        HOLDS,
+    )
     cursor.close()
     return True
 
+
 def validate_entries(connection):
     cursor = connection.cursor()
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT Book.Title, Author.Name, Category.Name
         FROM BookAuthor
         INNER JOIN Book 
@@ -143,16 +194,21 @@ def validate_entries(connection):
         INNER JOIN Category
             ON BookIsCategory.CategoryID = Category.ID
         ;
-    """)
+    """
+    )
     rows = list(cursor.fetchall())
-    print("Found ", len(rows), " rows available for book data (this should match CSV size of 677entries)")
+    print(
+        "Found ",
+        len(rows),
+        " rows available for book data (this should match CSV size of 677entries)",
+    )
     for r in rows[:25:5]:
         print("Sample", r)
     return True
+
 
 # allow running this scrip manually ro reinit the database in case of corruption
 if __name__ == "__main__":
     if path.isfile(DATABASE_NAME):
         os.remove(DATABASE_NAME)
     init()
-
