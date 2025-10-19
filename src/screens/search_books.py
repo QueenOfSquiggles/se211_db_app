@@ -1,14 +1,9 @@
 import tkinter as tk
-<<<<<<< HEAD
 import sqlite3
 from .util import resize_window
 from .main_portal import MainPortal
 
 DATABASE_NAME = "library.sqlite3"
-=======
-from .util import resize_window
-from .main_portal import MainPortal
->>>>>>> de56deb (Added basic hold propagation and querying)
 
 class SearchBooksFrame(tk.Frame):
     def __init__(self, base):
